@@ -1,0 +1,236 @@
+# Cloud Cost Optimizer — Dependency Map
+
+This document maps every Python package used in the project to the specific files that import it.
+
+---
+
+## Core Frameworks & UI
+
+### `streamlit`
+| File | Usage |
+|------|-------|
+| `app/dashboard.py` | Main UI framework — tabs, columns, metrics, charts, chat, uploader |
+| `app/auth.py` | Login page, registration, logout button UI |
+| `app/admin.py` | Admin dashboard UI for users/teams/orgs management |
+| `app/profile.py` | User profile page |
+| `theme/light.py` | Theme toggle UI component |
+| `run.py` | Launches Streamlit server via subprocess |
+
+---
+
+## Web Server & API
+
+### `fastapi`
+| File | Usage |
+|------|-------|
+| `backend/main.py` | FastAPI app creation, CORS middleware, router registration |
+| `backend/dependencies.py` | FastAPI security (HTTPBearer), dependency injection |
+
+### `uvicorn`
+| File | Usage |
+|------|-------|
+| `run.py` | Launches FastAPI server with `uvicorn` command |
+| (CLI) | `uvicorn backend.main:app --port=8000` |
+
+### `python-multipart`
+| File | Usage |
+|------|-------|
+| `backend/api/costs.py` | Parses uploaded file data via `UploadFile` / `File()` |
+
+### `PyJWT` (`jwt`)
+| File | Usage |
+|------|-------|
+| `backend/dependencies.py` | Creates and decodes JWT tokens for authentication |
+
+### `httpx` / `requests`
+| File | Usage |
+|------|-------|
+| (future use) | For Streamlit to make HTTP calls to FastAPI backend |
+
+---
+
+## Data Manipulation
+
+### `pandas`
+| File | Usage |
+|------|-------|
+| `app/data_generator.py` | Creates DataFrames for synthetic cost/resource/recommendation data |
+| `app/data_loader.py` | Reads CSV/Excel/JSON/Parquet, column mapping, validation, normalization |
+| `app/cost_analyzer.py` | Cost aggregation, grouping, wastage analysis, forecasting prep |
+| `app/dashboard.py` | DataFrame filtering, grouping, metric calculations |
+| `app/profile.py` | User activity data display |
+| `app/visualizations.py` | DataFrame manipulation for chart data |
+| `app/admin.py` | User/team/org data queries |
+| `app/auth.py` | User data lookups |
+| `ml/forecaster.py` | Time-series data preparation for Prophet/XGBoost |
+| `ml/anomaly.py` | DataFrame operations for anomaly detection |
+| `ml/clustering.py` | DataFrame operations for KMeans/DBSCAN |
+| `database/seed.py` | Seed data creation |
+| `AI/integration.py` | Wraps data for AI chatbot context |
+| `backend/api/costs.py` | API responses from DataFrames |
+| `backend/api/analytics.py` | API responses from analysis results |
+
+### `numpy`
+| File | Usage |
+|------|-------|
+| `app/data_generator.py` | Random number generation, seasonal/trend factors |
+| `app/cost_analyzer.py` | Numerical computations for percentiles, thresholds |
+| `app/dashboard.py` | (imported, used implicitly) |
+| `app/visualizations.py` | Numerical array operations for charts |
+| `ml/forecaster.py` | Array operations for forecasting |
+| `ml/anomaly.py` | Array operations for anomaly detection |
+| `ml/clustering.py` | Array operations for clustering |
+| `AI/embeddings.py` | Embedding vector operations |
+| `AI/vector_store.py` | Vector similarity computations |
+| `backend/api/analytics.py` | Data conversion for API responses |
+
+---
+
+## Visualization
+
+### `plotly`
+| File | Usage |
+|------|-------|
+| `app/visualizations.py` | All chart creation: cost trends, pie charts, bar charts, forecasts, anomalies, animations, clusters, comparisons |
+
+---
+
+## Machine Learning
+
+### `scikit-learn`
+| File | Usage |
+|------|-------|
+| `ml/forecaster.py` | `LinearRegression`, `StandardScaler` |
+| `ml/anomaly.py` | `IsolationForest`, `StandardScaler` |
+| `ml/clustering.py` | `KMeans`, `DBSCAN`, `StandardScaler` |
+
+### `xgboost`
+| File | Usage |
+|------|-------|
+| `ml/forecaster.py` | `XGBRegressor` for time-series forecasting |
+| `ml/anomaly.py` | Anomaly scoring with XGBoost |
+
+### `prophet`
+| File | Usage |
+|------|-------|
+| `ml/forecaster.py` | `Prophet` model for cost forecasting with seasonality |
+
+### `tensorflow`
+| File | Usage |
+|------|-------|
+| `ml/anomaly.py` | Autoencoder model for anomaly detection. (May be a conditional/fallback dependency.) |
+
+---
+
+## Database
+
+### `sqlalchemy`
+| File | Usage |
+|------|-------|
+| `database/connection.py` | `create_engine`, `sessionmaker`, `scoped_session` |
+| `database/models.py` | ORM model definitions — `Column`, `Integer`, `String`, `DateTime`, `ForeignKey`, `relationship`, `declarative_base` |
+| `database/repository.py` | Complex queries with `func`, `and_`, `desc`, `or_` |
+
+### `pymysql`
+- Listed in `requirements.txt` but not directly imported — used as SQLAlchemy DB driver for MySQL in production.
+
+### `openpyxl`
+| File | Usage |
+|------|-------|
+| `app/data_loader.py` | Reads `.xlsx` / `.xls` Excel files via `pd.read_excel()` |
+
+---
+
+## AI / LLM / RAG
+
+### `faiss-cpu`
+| File | Usage |
+|------|-------|
+| `AI/vector_store.py` | FAISS index for vector similarity search (embeddings) |
+
+### `langchain-core`
+| File | Usage |
+|------|-------|
+| `AI/rag_chain.py` | LangChain components for RAG pipeline (imported dynamically) |
+| `AI/agent.py` | LangChain agent/tool framework |
+
+---
+
+## Python Standard Library (not in requirements.txt)
+
+### `hashlib`
+| File | Usage |
+|------|-------|
+| `app/auth.py` | SHA-256 password hashing |
+| `app/admin.py` | Password hashing for user creation |
+| `database/seed.py` | Password hashing for seed users |
+| `backend/api/auth.py` | Password hashing (duplicate of app logic) |
+| `backend/api/admin.py` | Password hashing |
+
+### `datetime`
+| File | Usage |
+|------|-------|
+| Everywhere | Date manipulation, timestamps, data generation, filtering |
+
+### `json`
+| File | Usage |
+|------|-------|
+| `AI/embeddings.py` | Serializes/deserializes HTTP request bodies |
+| `AI/rag_chain.py` | Parses Ollama API JSON responses |
+| `backend/api/costs.py` | JSON serialization for API |
+
+### `urllib.request`
+| File | Usage |
+|------|-------|
+| `AI/embeddings.py` | HTTP calls to Ollama embedding API |
+| `AI/rag_chain.py` | HTTP calls to Ollama LLM API |
+
+### `socket`
+| File | Usage |
+|------|-------|
+| `run.py` | Port availability checks for both backend and dashboard |
+
+### `subprocess`
+| File | Usage |
+|------|-------|
+| `run.py` | Launches both FastAPI (uvicorn) and Streamlit as child processes |
+
+### `webbrowser`
+| File | Usage |
+|------|-------|
+| `run.py` | Opens dashboard URL in default browser |
+
+### `io.StringIO` / `io.BytesIO`
+| File | Usage |
+|------|-------|
+| `app/data_loader.py` | In-memory file handling for uploaded CSV/Excel/JSON/Parquet |
+
+### `warnings`
+| File | Usage |
+|------|-------|
+| `app/dashboard.py` | Suppresses deprecation/ML warnings |
+| `app/data_loader.py` | Suppresses warnings during file parsing |
+| `app/cost_analyzer.py` | Suppresses warnings during analysis |
+| `ml/forecaster.py` | Suppresses Prophet/XGBoost warnings |
+| `ml/anomaly.py` | Suppresses sklearn warnings |
+| `ml/clustering.py` | Suppresses sklearn warnings |
+
+### `os`, `sys`, `glob`, `pickle`, `re`
+| File | Usage |
+|------|-------|
+| (Various) | Path management, file discovery, serialization, regex parsing |
+
+---
+
+## Summary Table
+
+| Category | Package | Key Module(s) |
+|----------|---------|---------------|
+| **Web UI** | `streamlit` | `app/dashboard.py`, `app/auth.py` |
+| **Backend API** | `fastapi`, `uvicorn`, `PyJWT`, `python-multipart` | `backend/` |
+| **Data** | `pandas`, `numpy` | Almost every `.py` file |
+| **Charts** | `plotly` | `app/visualizations.py` |
+| **ML** | `scikit-learn`, `xgboost`, `prophet`, `tensorflow` | `ml/` |
+| **Database** | `sqlalchemy`, `pymysql`, `openpyxl` | `database/` |
+| **AI/RAG** | `faiss-cpu`, `langchain-core` | `AI/` |
+| **Stdlib** | `hashlib`, `json`, `urllib`, `subprocess`, `socket`, `io`, `datetime`, `os`, `sys`, `re` | Various |
